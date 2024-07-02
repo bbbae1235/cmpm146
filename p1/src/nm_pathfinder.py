@@ -20,34 +20,74 @@ def find_path (source_point, destination_point, mesh):
     adj_boxes = mesh['adj']
     source_box = find_box(source_point, mesh_boxes)
     destination_box = find_box(destination_point, mesh_boxes)
-    frontier = queue.Queue()
-    frontier.put((source_box, source_point))
+    
+    #Create Foward Search
+    Forwardfrontier = queue.PriorityQueue() 
+    Forwardfrontier.put((0, source_box, source_point))   
+    came_from_forward = {source_point: None} #keep track of visited points
+    cost_so_far_forward = {source_point: 0} #keep track of costs
+    boxes_forward = {source_box} #keep track of visited boxes 
 
-    came_from = {source_point: None} #keep track of visited points
-    cost_so_far = {source_point: 0} #keep track of costs
-    boxes = {source_box} #keep track of visited boxes
+    #Create Backward Search
+    Backwardfrontier = queue.PriorityQueue() 
+    Backwardfrontier.put((0, source_box, source_point))  
+    came_from_backward = {destination_point: None} #keep track of visited points
+    cost_so_far_backward = {destination_point: 0} #keep track of costs
+    boxes_backward = {destination_box} #keep track of visited boxes 
 
-    while not frontier.empty():
-        current_box, current_point = frontier.get()
-        boxes.add(current_box)
-        if current_box == destination_box:
-            path = [destination_point] #connects path to goal point
-            while current_point is not None:
-                path.append(current_point)
-                current_point = came_from[current_point]
-            path.reverse()
-            return path, boxes
-        else:
-            for neighbor in adj_boxes.get(current_box):
-                if neighbor not in boxes:
-                    # determines where to enter on neighbor box
-                    neighbor_point = entry_point(current_point, neighbor)
-                    new_cost = cost_so_far[current_point] + euclidean_distance(current_point, neighbor_point)
-                    if neighbor_point not in cost_so_far or new_cost < cost_so_far[neighbor_point]:
-                        cost_so_far[neighbor_point] = new_cost
-                        frontier.put((neighbor, neighbor_point))
-                        boxes.add(neighbor)
-                        came_from[neighbor_point] = current_point
+    # Function to reconstruct path when searches meet
+    def reconstruct_path(meeting_point):
+        path_forward = []
+        current = meeting_point
+        while current is not None:
+            path_forward.append(current)
+            current = came_from_forward[current]
+        path_forward.reverse()
+            
+        path_backward = []
+        current = came_from_backward[meeting_point]
+        while current is not None:
+            path_backward.append(current)
+            current = came_from_backward[current]
+            
+        return path_forward + path_backward, boxes_forward.union(boxes_backward)
+   
+    #Perform the bidirectional search
+    while not Forwardfrontier.empty() and not Backwardfrontier.empty():
+        #Fowardfrontier
+        priority,current_box_forward, current_point_forward = Forwardfrontier.get()
+        boxes_forward.add(current_box_forward)
+        if current_box_forward in came_from_backward:
+            return reconstruct_path(current_point_forward)
+            
+        for neighbor in adj_boxes.get(current_box_forward, []):
+            if neighbor not in boxes_forward:
+                # determines where to enter on neighbor box
+                neighbor_point = entry_point(current_point_forward, neighbor)
+                new_cost = cost_so_far_forward[current_point_forward] + euclidean_distance(current_point_forward, neighbor_point)
+                if neighbor_point not in cost_so_far_forward or new_cost < cost_so_far_forward[neighbor_point]:
+                    cost_so_far_forward[neighbor_point] = new_cost
+                    priority = new_cost + heuristic(neighbor_point, destination_point)  #add hueristics to the cost
+                    Forwardfrontier.put((neighbor, neighbor_point))
+                    boxes_forward.add(neighbor)
+                    came_from_forward[neighbor_point] = current_point_forward
+        #Backwardsfrontier
+        priority,current_box_backward, current_point_backward = Backwardfrontier.get()
+        boxes_backward.add(current_box_backward)
+        if current_box_backward in came_from_backward:
+            return reconstruct_path(current_point_backward)
+            
+        for neighbor in adj_boxes.get(current_box_backward, []):
+            if neighbor not in boxes_backward:
+                # determines where to enter on neighbor box
+                neighbor_point = entry_point(current_point_backward, neighbor)
+                new_cost = cost_so_far_backward[current_point_backward] + euclidean_distance(current_point_backward, neighbor_point)
+                if neighbor_point not in cost_so_far_backward or new_cost < cost_so_far_backward[neighbor_point]:
+                    cost_so_far_backward[neighbor_point] = new_cost
+                    priority = new_cost + heuristic(neighbor_point, destination_point)  #add hueristics to the cost
+                    Backwardfrontier.put((neighbor, neighbor_point))
+                    boxes_backward.add(neighbor)
+                    came_from_backward[neighbor_point] = current_point_backward
 
     return None
 
@@ -73,3 +113,7 @@ def euclidean_distance(point1, point2):
     x1, y1 = point1
     x2, y2 = point2
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+#get cost from current poitn to desitination 
+def heuristic(point, goal):
+        return euclidean_distance(point,goal)
