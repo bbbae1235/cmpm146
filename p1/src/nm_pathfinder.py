@@ -65,11 +65,11 @@ def find_path(source_point, destination_point, mesh):
             if current_point in came_from_backward:
                 return reconstruct_path(current_point)
 
-            for neighbor in adj_boxes.get(current_box, []):
+            for neighbor in adj_boxes.get(current_box):
                 if neighbor not in boxes_forward:
                     # Determines where to enter on neighbor box
                     neighbor_point = entry_point(current_point, neighbor)
-                    new_cost = cost_so_far_forward[current_point] + euclidean_distance(current_point, neighbor_point)
+                    new_cost = cost_so_far_forward[current_point] + priority
                     if neighbor_point not in cost_so_far_forward or new_cost < cost_so_far_forward[neighbor_point]:
                         cost_so_far_forward[neighbor_point] = new_cost
                         priority = new_cost + heuristic(neighbor_point, destination_point)  # Add heuristics to the cost
@@ -82,11 +82,11 @@ def find_path(source_point, destination_point, mesh):
             if current_point in came_from_forward:
                 return reconstruct_path(current_point)
 
-            for neighbor in adj_boxes.get(current_box, []):
+            for neighbor in adj_boxes.get(current_box):
                 if neighbor not in boxes_backward:
                     # Determines where to enter on neighbor box
                     neighbor_point = entry_point(current_point, neighbor)
-                    new_cost = cost_so_far_backward[current_point] + euclidean_distance(current_point, neighbor_point)
+                    new_cost = cost_so_far_backward[current_point] + priority
                     if neighbor_point not in cost_so_far_backward or new_cost < cost_so_far_backward[neighbor_point]:
                         cost_so_far_backward[neighbor_point] = new_cost
                         priority = new_cost + heuristic(neighbor_point, source_point)  # Add heuristics to the cost
