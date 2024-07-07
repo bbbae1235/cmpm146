@@ -22,8 +22,7 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         node: A node from which the next stage of the search can proceed.
         state: The state associated with that node
 
-    """
-    
+    """ 
     pass
 
 def expand_leaf(node: MCTSNode, board: Board, state):
@@ -39,8 +38,11 @@ def expand_leaf(node: MCTSNode, board: Board, state):
         state: The state associated with that node
 
     """
-    pass
-
+    action = node.untried_actions.pop()
+    next_state = board.next_state(state, action)
+    child_node = MCTSNode(parent=node, parent_action=action, action_list=board.legal_actions(next_state))
+    node.child_nodes[action] = child_node
+    return child_node, next_state
 
 def rollout(board: Board, state):
     """ Given the state of the game, the rollout plays out the remainder randomly.
@@ -81,7 +83,7 @@ def ucb(node: MCTSNode, is_opponent: bool):
     if is_opponent:
         win_rate = 1 - win_rate
     # exploration parameter
-    c = sqrt(2)
+    c = explore_faction
     t = node.parent.visits
     return win_rate + c * sqrt(t) / ni
 
