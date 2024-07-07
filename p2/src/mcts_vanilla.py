@@ -23,6 +23,7 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         state: The state associated with that node
 
     """
+    
     pass
 
 def expand_leaf(node: MCTSNode, board: Board, state):
@@ -74,7 +75,15 @@ def ucb(node: MCTSNode, is_opponent: bool):
     Returns:
         The value of the UCB function for the given node
     """
-    pass
+    wi = node.wins
+    ni = node.visits
+    win_rate = wi / ni
+    if is_opponent:
+        win_rate = 1 - win_rate
+    # exploration parameter
+    c = sqrt(2)
+    t = node.parent.visits
+    return win_rate + c * sqrt(t) / ni
 
 def get_best_action(root_node: MCTSNode):
     """ Selects the best action from the root node in the MCTS tree
