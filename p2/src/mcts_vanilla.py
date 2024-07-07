@@ -55,7 +55,11 @@ def rollout(board: Board, state):
         state: The terminal game state
 
     """
-    pass
+    current_rollout_state = state
+    while not board.is_ended(state):
+        action = choice(board.legal_actions(state))
+        current_rollout_state = board.next_state(state, action)
+    return board.points_values(state) == 1
 
 
 def backpropagate(node: MCTSNode|None, won: bool):
