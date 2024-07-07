@@ -105,13 +105,14 @@ def get_best_action(root_node: MCTSNode):
     
     """
     for i in range(100):
+        #tree policy function
         current_node = root_node
-        while not current_node.is_terminal_node():
-            
-            if not current_node.is_fully_expanded():
-                return current_node.expand()
+        while current_node.untried_actions:
+            if not current_node.untried_actions:
+                return expand_leaf(current_node)
             else:
                 current_node = current_node.best_child()
+        #more to be added
     pass
 
 def is_win(board: Board, state, identity_of_bot: int):
