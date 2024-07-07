@@ -66,7 +66,11 @@ def backpropagate(node: MCTSNode|None, won: bool):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    pass
+    while node is not None:
+        node.visits += 1
+        if won:
+            node.wins += 1
+        node = node.parent
 
 def ucb(node: MCTSNode, is_opponent: bool):
     """ Calcualtes the UCB value for the given node from the perspective of the bot
