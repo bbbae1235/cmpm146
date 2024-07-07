@@ -56,10 +56,10 @@ def rollout(board: Board, state):
 
     """
     current_rollout_state = state
-    while not board.is_ended(state):
+    while not board.is_ended(current_rollout_state):
         action = choice(board.legal_actions(state))
         current_rollout_state = board.next_state(state, action)
-    return board.points_values(state) == 1
+    return current_rollout_state
 
 
 def backpropagate(node: MCTSNode|None, won: bool):
@@ -104,6 +104,14 @@ def get_best_action(root_node: MCTSNode):
         action: The best action from the root node
     
     """
+    for i in range(100):
+        current_node = root_node
+        while not current_node.is_terminal_node():
+            
+            if not current_node.is_fully_expanded():
+                return current_node.expand()
+            else:
+                current_node = current_node.best_child()
     pass
 
 def is_win(board: Board, state, identity_of_bot: int):
