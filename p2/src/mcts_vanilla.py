@@ -93,7 +93,8 @@ def ucb(node: MCTSNode, is_opponent: bool):
     # exploration parameter
     c = explore_faction
     t = node.parent.visits
-    return win_rate + c * sqrt(t) / ni
+
+    return win_rate + c * sqrt(log(t) / ni)
 
 def get_best_action(root_node: MCTSNode):
     """ Selects the best action from the root node in the MCTS tree
@@ -104,16 +105,13 @@ def get_best_action(root_node: MCTSNode):
         action: The best action from the root node
     
     """
-    for i in range(100):
-        #tree policy function
-        current_node = root_node
-        while current_node.untried_actions:
-            if not current_node.untried_actions:
-                return expand_leaf(current_node)
-            else:
-                current_node = current_node.best_child()
-        #more to be added
-    pass
+    best_child = None
+    best_wins = 0
+    for child in root_node.child_nodes:
+        win_rate = child.wins / child.visits
+        if win_rate > best_wins:
+            best_child = child
+    return best_child
 
 def is_win(board: Board, state, identity_of_bot: int):
     # checks if state is a win state for identity_of_bot
