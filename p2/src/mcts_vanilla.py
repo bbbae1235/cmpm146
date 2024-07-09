@@ -187,10 +187,21 @@ def think(board: Board, current_state):
     for _ in range(num_nodes):
         state = current_state
         node = root_node
-
         # Do MCTS - This is all you!
         # ...
-
+        # Selection  
+        node, state = traverse_nodes(node, board, state, bot_identity)
+        
+        # Expansion
+        if not board.is_ended(state):
+            node, state = expand_leaf(node, board, state)
+        
+        # Simulation
+        end_state = rollout(board, state)
+        
+        # Backpropagation
+        won = is_win(board, end_state, bot_identity)
+        backpropagate(node, won)
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     _, best_action = get_best_action(root_node, False)
