@@ -4,7 +4,7 @@ from p2_t3 import Board
 from random import choice
 from math import sqrt, log
 
-num_nodes = 100
+num_nodes = 1000
 explore_faction = 2.
 
 def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
@@ -116,21 +116,32 @@ def ucb(node: MCTSNode, is_opponent: bool):
     return win_rate + c * sqrt(log(t) / ni)
 
 def get_best_action(root_node: MCTSNode):
-    """ Selects the best action from the root node in the MCTS tree
+    """ Selects the best action from the root node in the MCTS tree using UCB criteria
 
     Args:
         root_node:   The root node
+
     Returns:
         action: The best action from the root node
     
     """
-    best_child = None
-    best_wins = -1
-    for child in root_node.child_nodes.values():
-        win_rate = child.wins / child.visits
-        if win_rate > best_wins:
-            best_child = child
-    return best_child.parent_action
+    best_action = None
+    best_ucb_value = -float('inf')
+
+    for action, child_node in root_node.child_nodes.items():
+        if child_node.visits == 0:
+            ucb_value = float('inf')
+        else:
+            exploration_factor = sqrt(log(root_node.visits) / child_node.visits)
+            win_rate = child_node.wins / child_node.visits
+            ucb_value = win_rate + explore_faction * exploration_factor
+        
+        if ucb_value > best_ucb_value:
+            best_ucb_value = ucb_value
+            best_action = action
+
+    return best_action
+
 
 def is_win(board: Board, state, identity_of_bot: int):
     # checks if state is a win state for identity_of_bot
@@ -168,6 +179,5 @@ def think(board: Board, current_state):
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     best_action = get_best_action(root_node)
-
     print(f"Action chosen: {best_action}")
     return best_action
