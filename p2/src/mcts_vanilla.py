@@ -23,7 +23,17 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         state: The state associated with that node
 
     """ 
-    pass
+    best_child = None
+    while board.is_ended(state):
+        if node.untried_actions:
+            return node, state
+        u = max(ucb(child, True) for child in node.child_nodes.values())
+        for child in node.child_nodes.values():
+            if(ucb(child, True) >= u):
+                best_child = child
+        node = best_child
+        state = board.next_state(state, node.parent_action)
+    return node, state
 
 def expand_leaf(node: MCTSNode, board: Board, state):
     """ Adds a new leaf to the tree by creating a new child node for the given node (if it is non-terminal).
@@ -132,13 +142,11 @@ def think(board: Board, current_state):
     bot_identity = board.current_player(current_state) # 1 or 2
     root_node = MCTSNode(parent=None, parent_action=None, action_list=board.legal_actions(current_state))
 
-    for _ in range(num_nodes):
+    for i in range(1000):
         state = current_state
         node = root_node
-
         # Do MCTS - This is all you!
         # ...
-
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     best_action = get_best_action(root_node)
