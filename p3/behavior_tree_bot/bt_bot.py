@@ -26,10 +26,10 @@ def setup_behavior_tree():
     # Top-down construction of behavior tree
     root = Selector(name='High Level Ordering of Strategies')
 
-    balance_sequence = Sequence(name='Balance Strategy')
+    spread_sequence = Sequence(name='Spread Strategy')
     neutral_planet_check = Check(if_neutral_planet_available)
-    balance_action = Action(spread_to_weakest_neutral_planet)
-    balance_sequence.child_nodes = [neutral_planet_check, balance_action]
+    spread_action = Action(spread_to_weakest_neutral_planet)
+    spread_sequence.child_nodes = [neutral_planet_check, spread_action]
 
     take_over_action = Action(take_over)
     take_over_sequence = Sequence(name="Take Over Multiple Planets")
@@ -46,7 +46,7 @@ def setup_behavior_tree():
     defend_action = Action(defend)
     defending_sequence.child_nodes = [defending_check, defend_action]
 
-    root.child_nodes = [balance_sequence, offensive_plan, take_over_sequence, defending_sequence, attack.copy()]
+    root.child_nodes = [spread_sequence, offensive_plan, take_over_sequence, defending_sequence, attack.copy()]
 
     logging.info('\n' + root.tree_to_string())
     return root
