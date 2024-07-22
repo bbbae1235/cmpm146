@@ -49,9 +49,33 @@ def op_iron_pickaxe_for_ore (state, ID):
 		state.time[ID] -= 2
 		return state
 	return False
+
+def op_wooden_axe_for_wood (state, ID):
+	if state.time[ID] >= 2 and state.wooden_axe[ID] >= 1:
+		state.wood[ID] += 1
+		state.time[ID] -= 2
+		return state
+	return False
+
+def op_craft_plank (state, ID):
+	if state.time[ID] >= 1 and state.wood[ID] >= 1:
+		state.plank[ID] += 4
+		state.wood[ID] -= 1
+		state.time[ID] -= 1
+		return state
+	return False
+
+def op_craft_stick (state, ID):
+	if state.time[ID] >= 1 and state.plank[ID] >= 2:
+		state.stick[ID] += 4
+		state.plank[ID] -= 2
+		state.time[ID] -= 1
+		return state
+	return False
+
 # your code here
 
-pyhop.declare_operators (op_punch_for_wood, op_craft_wooden_axe_at_bench, op_craft_wooden_pickaxe_at_bench, op_craft_stone_pickaxe_at_bench, op_wooden_pickaxe_for_coal, op_iron_pickaxe_for_ore)
+pyhop.declare_operators (op_punch_for_wood, op_craft_wooden_axe_at_bench, op_craft_wooden_pickaxe_at_bench, op_craft_stone_pickaxe_at_bench, op_wooden_pickaxe_for_coal, op_iron_pickaxe_for_ore, op_wooden_axe_for_wood, op_craft_plank, op_craft_stick)
 
 '''end operators'''
 
@@ -89,6 +113,10 @@ def produce (state, ID, item):
 		return [('produce_coal', ID)]
 	elif item == 'ore':
 		return [('produce_ore', ID)]
+	elif item == 'plank':
+		return [('produce_plank', ID)]
+	elif item == 'stick':
+		return [('produce_stick', ID)]
 	else:
 		return False
 
@@ -115,6 +143,15 @@ def wooden_pickaxe_for_coal (state, ID):
 def iron_pickaxe_for_ore (state, ID):
 	return [('have_enough', ID, 'iron_pickaxe', 1), ('op_iron_pickaxe_for_ore', ID)]
 
+def wooden_axe_for_wood (state, ID):
+	return [('have_enough', ID, 'wooden_axe', 1), ('op_wooden_axe_for_wood', ID)]
+
+def craft_plank (state, ID):
+	return [('have_enough', ID, 'wood', 1), ('op_craft_plank', ID)]
+
+def craft_stick (state, ID):
+	return [('have_enough', ID, 'plank', 2), ('op_craft_stick', ID)]
+
 # your code here
 
 pyhop.declare_methods ('produce_wood', punch_for_wood)
@@ -123,6 +160,8 @@ pyhop.declare_methods ('produce_wooden_pickaxe', craft_wooden_pickaxe_at_bench)
 pyhop.declare_methods ('produce_stone_pickaxe', craft_stone_pickaxe_at_bench)
 pyhop.declare_methods ('produce_coal', wooden_pickaxe_for_coal)
 pyhop.declare_methods ('produce_ore', iron_pickaxe_for_ore)
+pyhop.declare_methods ('produce_wood', wooden_axe_for_wood)
+pyhop.declare_methods ('produce_plank', craft_plank)
 
 '''end recipe methods'''
 
@@ -143,6 +182,8 @@ state.made_stone_pickaxe = {'agent': False}
 state.coal = {'agent': 0}
 
 state.ore = {'agent': 0}
+
+state.plank = {'agent': 0}
 
 # pyhop.print_operators()
 # pyhop.print_methods()
