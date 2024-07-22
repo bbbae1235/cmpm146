@@ -73,6 +73,15 @@ def op_craft_stick (state, ID):
 		return state
 	return False
 
+def op_craft_rail_at_bench (state, ID):
+	if state.time[ID] >= 1 and state.bench[ID] >= 1 and state.cobble[ID] >= 3 and state.stick[ID] >=2:
+		state.stone_pickaxe[ID] += 1
+		state.cobble[ID] -= 3
+		state.stick[ID] -= 2
+		state.time[ID] -= 1
+		return state
+	return False
+
 # your code here
 
 pyhop.declare_operators (op_punch_for_wood, op_craft_wooden_axe_at_bench, op_craft_wooden_pickaxe_at_bench, op_craft_stone_pickaxe_at_bench, op_wooden_pickaxe_for_coal, op_iron_pickaxe_for_ore, op_wooden_axe_for_wood, op_craft_plank, op_craft_stick)
@@ -162,6 +171,7 @@ pyhop.declare_methods ('produce_coal', wooden_pickaxe_for_coal)
 pyhop.declare_methods ('produce_ore', iron_pickaxe_for_ore)
 pyhop.declare_methods ('produce_wood', wooden_axe_for_wood)
 pyhop.declare_methods ('produce_plank', craft_plank)
+pyhop.declare_methods ('produce_stick', craft_stick)
 
 '''end recipe methods'''
 
@@ -184,6 +194,8 @@ state.coal = {'agent': 0}
 state.ore = {'agent': 0}
 
 state.plank = {'agent': 0}
+
+state.stick = {'agent': 0}
 
 # pyhop.print_operators()
 # pyhop.print_methods()
