@@ -15,12 +15,21 @@ def produce (state, ID, item):
 
 pyhop.declare_methods ('produce', produce)
 
-def make_method (name, rule):
-	def method (state, ID):
-		# your code here
-		pass
+def make_method(name, rule):
+    def method(state, ID):
+        tasks = []
 
-	return method
+        if 'Requires' in rule:
+            for item, amount in rule['Requires'].items():
+                tasks.append(('have_enough', ID, item, amount))
+
+        if 'Consumes' in rule:
+            for item, amount in rule['Consumes'].items():
+                tasks.append(('have_enough', ID, item, amount))
+
+        tasks.append(('op_' + name.replace(' ', '_'), ID))
+        return tasks
+    return method
 
 def declare_methods (data):
 	# some recipes are faster than others for the same product even though they might require extra tools
@@ -28,18 +37,51 @@ def declare_methods (data):
 
 	# your code here
 	# hint: call make_method, then declare the method to pyhop using pyhop.declare_methods('foo', m1, m2, ..., mk)	
-	pass			
+	methods = {}
+	for name, rule in data['Recipes'].items():
+		method = make_method(name.replace(' ', '_'), rule)
+		for item in rule['Produces']:
+			if item not in methods:
+				methods[item] = []	
+			methods[item].append(method)
+	
+	for item, mlist in methods.items():
+		pyhop.declare_methods('produce_{}'.format(item), *mlist)
 
 def make_operator (rule):
+	recipe_name, details = rule
 	def operator (state, ID):
 		# your code here
-		pass
+		time = details['Time']
+		if state.time[ID] < time: return False
+
+		reqs = details.get('Requires', {}) # Required items
+		cons = details.get('Consumes', {}) # Consumables 
+		prod = details.get('Produces', {}) # Produced items
+
+		# Check if we have enough  
+		if reqs and not all(getattr(state, item)[ID] >= num for item, num in reqs.items()):
+			return False
+		
+		if cons and not all(getattr(state, item)[ID] >= num for item, num in cons.items()):
+			return False
+		
+		for item, num in prod.items():
+			getattr(state, item)[ID] += num
+
+		for item, num in cons.items():
+			getattr(state, item)[ID] -= num
+
+		state.time[ID] -= time
+
+	operator.__name__ = 'op_{}'.format(recipe_name.replace(' ', '_'))
 	return operator
 
 def declare_operators (data):
 	# your code here
-	# hint: call make_operator, then declare the operator to pyhop using pyhop.declare_operators(o1, o2, ..., ok)
-	pass
+	recipes = data['Recipes']
+	operators = [make_operator((recipe_name, details)) for recipe_name, details in recipes.items()]
+	pyhop.declare_operators(*operators)
 
 def add_heuristic (data, ID):
 	# prune search branch if heuristic() returns True
@@ -50,7 +92,6 @@ def add_heuristic (data, ID):
 		return False # if True, prune this branch
 
 	pyhop.add_check(heuristic)
-
 
 def set_up_state (data, ID, time=0):
 	state = pyhop.State('state')
@@ -87,10 +128,10 @@ if __name__ == '__main__':
 	declare_methods(data)
 	add_heuristic(data, 'agent')
 
-	# pyhop.print_operators()
-	# pyhop.print_methods()
+	pyhop.print_operators()
+	pyhop.print_methods()
 
 	# Hint: verbose output can take a long time even if the solution is correct; 
 	# try verbose=1 if it is taking too long
-	pyhop.pyhop(state, goals, verbose=3)
-	# pyhop.pyhop(state, [('have_enough', 'agent', 'cart', 1),('have_enough', 'agent', 'rail', 20)], verbose=3)
+	# pyhop.pyhop(state, goals, verbose=1)
+	pyhop.pyhop(state, [('have_enough', 'agent', 'cart', 1),('have_enough', 'agent', 'rail', 20)], verbose=3)
