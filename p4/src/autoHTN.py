@@ -1,5 +1,6 @@
 import pyhop
 import json
+from pprint import pprint
 
 def check_enough (state, ID, item, num):
 	if getattr(state,item)[ID] >= num: return []
@@ -31,15 +32,39 @@ def declare_methods (data):
 	pass			
 
 def make_operator (rule):
+	recipe_name, details = rule
 	def operator (state, ID):
 		# your code here
-		pass
+		time = details['Time']
+		if state.time[ID] < time: return False
+
+		reqs = details.get('Requires', {}) # Required items
+		cons = details.get('Consumes', {}) # Consumables 
+		prod = details.get('Produces', {}) # Produced items
+
+		# Check if we have enough  
+		if reqs and not all(getattr(state, item)[ID] >= num for item, num in reqs.items()):
+			return False
+		
+		if cons and not all(getattr(state, item)[ID] >= num for item, num in cons.items()):
+			return False
+		
+		for item, num in prod.items():
+			getattr(state, item)[ID] += num
+
+		for item, num in cons.items():
+			getattr(state, item)[ID] -= num
+
+		state.time[ID] -= time
+
+	operator.__name__ = 'op_{}'.format(recipe_name.replace(' ', '_'))
 	return operator
 
 def declare_operators (data):
 	# your code here
-	# hint: call make_operator, then declare the operator to pyhop using pyhop.declare_operators(o1, o2, ..., ok)
-	pass
+	recipes = data['Recipes']
+	operators = [make_operator((recipe_name, details)) for recipe_name, details in recipes.items()]
+	pyhop.declare_operators(*operators)
 
 def add_heuristic (data, ID):
 	# prune search branch if heuristic() returns True
