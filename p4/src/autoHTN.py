@@ -92,16 +92,12 @@ def add_heuristic(data, ID):
     # prune search branch if heuristic() returns True
     # do not change parameters to heuristic(), but can add more heuristic functions with the same parameters:
     # e.g. def heuristic2(...); pyhop.add_check(heuristic2)
-    def heuristic(state, curr_task, tasks, plan, depth, calling_stack):
-        if state.time[ID] < 1:
-            return True
+	def heuristic(state, curr_task, tasks, plan, depth, calling_stack):
+		if depth > 50:
+			return True
+		return False
 
-        if depth > 10:
-            return True
-
-        return False
-
-    pyhop.add_check(heuristic)
+	pyhop.add_check(heuristic)
 
 def set_up_state (data, ID, time=0):
 	state = pyhop.State('state')
