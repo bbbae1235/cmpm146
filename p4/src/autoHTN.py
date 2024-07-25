@@ -96,8 +96,21 @@ def add_heuristic(data, ID):
 		if depth > 50:
 			return True
 		return False
-
+	
+	def heuristic2(state, curr_task, tasks, plan, depth, calling_stack):
+		#check if there is a task that produces a tool
+		for task in tasks:
+			if task[0] == 'produce':
+				item = task[2]
+				if item in data["Tools"]:
+					#if the agent already owns this tool
+					if getattr(state, item, {}).get("agent", 0) >= 1:
+						return True  #prune path
+					
+		return False
+	
 	pyhop.add_check(heuristic)
+	pyhop.add_check(heuristic2)
 
 def set_up_state (data, ID, time=0):
 	state = pyhop.State('state')
@@ -128,6 +141,7 @@ if __name__ == '__main__':
 		data = json.load(f)
 
 	state = set_up_state(data, 'agent', time=300) # allot time here
+	state.wooden_pickaxe = {'agent': 1}
 	goals = set_up_goals(data, 'agent')
 
 	declare_operators(data)
@@ -139,5 +153,6 @@ if __name__ == '__main__':
 
 	# Hint: verbose output can take a long time even if the solution is correct; 
 	# try verbose=1 if it is taking too long
-	pyhop.pyhop(state, goals, verbose=1)
+	# pyhop.pyhop(state, goals, verbose=1)
+	pyhop.pyhop(state, [('have_enough', 'agent', 'stone_pickaxe', 1)], verbose=3)
 	# pyhop.pyhop(state, [('have_enough', 'agent', 'cart', 1),('have_enough', 'agent', 'rail', 20)], verbose=3)

@@ -1,0 +1,11 @@
+Given 'wooden_pickaxe', achieve 'stone_pickaxe'
+
+Task: Craft a stone pickaxe at bench given a wooden pickaxe
+
+Solution: 
+** result = [('op_punch_for_wood', 'agent'), ('op_craft_plank', 'agent'), ('op_craft_bench', 'agent'), ('op_wooden_pickaxe_for_cobble', 'agent'), ('op_wooden_pickaxe_for_cobble', 'agent'), 
+('op_wooden_pickaxe_for_cobble', 'agent'), ('op_punch_for_wood', 'agent'), ('op_craft_plank', 'agent'), ('op_craft_stick', 'agent'), ('op_craft_stone_pickaxe_at_bench', 'agent')]
+
+Time Cost for Recipe: 25 seconds
+
+Time Cost in Real-World Time: 3 seconds?
