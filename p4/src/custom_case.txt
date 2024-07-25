@@ -8,4 +8,4 @@ Solution:
 
 Time Cost for Recipe: 25 seconds
 
-Time Cost in Real-World Time: 3 seconds?
+Time Cost in Real-World Time: 3 seconds
