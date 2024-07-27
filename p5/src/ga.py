@@ -380,7 +380,37 @@ def generate_successors(population):
     results = []
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
+    parents = tournament_selection(population)
+    
+
     return results
+
+def tournament_selection(population):
+    # In K-Way tournament selection, we select K individuals from the population at random and select the best out of 
+    # these to become a parent. The same process is repeated for selecting the next parent. 
+    selected_parents = []
+    # random number of parents to select
+    random_num_parents = random.randint(2, len(population))
+
+    # if the population only has 0 or 1 individuals, just return the population
+    if len(population) < 2:
+        return population
+
+    for i in range (random_num_parents):
+        # randomly select 3 individuals
+        random_individuals = random.sample(population, 3)
+        # calculate their fitnesses and store them in a list
+        random_fitnesses = [x.fitness() for x in random_individuals]
+        # get the largest fitness
+        largest_fitness = max(random_fitnesses)
+        # get the index of the largest fitness 
+        largest_fitness_index = random_fitnesses.index(largest_fitness)
+        # trace back to find which individual had the largest fitness
+        largest_fitness_individual = random_individuals[largest_fitness_index]
+        # to avoid repeats, check if this individual is already in the list of selected parents
+        if largest_fitness_individual not in selected_parents:
+            selected_parents.append(population[largest_fitness_individual])
+    return selected_parents
 
 
 def ga():
