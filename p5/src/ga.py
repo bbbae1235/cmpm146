@@ -114,7 +114,7 @@ class Individual_Grid(object):
                     # spawn enemies on walkable blocks
                     if other.genome[y-1][x] in walkable_blocks and other.genome[y][x] == "E":
                         self_copy[y][x] = other.genome[y][x]
-                    else:
+                    elif other.genome[y-1][x] not in walkable_blocks:
                         self_copy[y][x] = self.genome[y][x]
                 else:
                     self_copy[y][x] = self.genome[y][x]
