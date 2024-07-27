@@ -84,6 +84,7 @@ class Individual_Grid(object):
         # do crossover with other
         left = 1
         right = width - 1
+        ground_level = 14
         for y in range(height):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
@@ -91,6 +92,8 @@ class Individual_Grid(object):
                 # uniform crossover, randomly take a parent's gene at each position with some bias
                 
                 pipe_characters = ["T", "|"]
+                question_mark_block = ["?", "M"]
+                walkable_blocks = ["X", "?", "M", "B"]
                 
                 # 20% chance of new genome to take other's gene
                 if random.randint(1, 10) <= 2:
@@ -100,10 +103,22 @@ class Individual_Grid(object):
                     # keep the original gene that it had at that position (choosing self genome)
                     if other[y][x] not in pipe_characters:
                         self_copy[y][x] = other[y][x]
+                    else:
+                        self_copy[y][x] = self[y][x]
+                    # ensure that question mark blocks are not too low
+                    if y <= ground_level - 4 and other[y][x] in question_mark_block:
+                        self_copy[y][x] = other.genome[y][x]
+                    else:
+                        self_copy[y][x] = self.genome[y][x]
+                    # spawn enemies on walkable blocks
+                    if other[y-1][x] in walkable_blocks and other[y][x] == "E":
+                        self_copy[y][x] = other.genome[y][x]
+                    else:
+                        self_copy[y][x] = self.genome[y][x]
 
-                
+        self_copy = self.mutate(self_copy)
         # do mutation; note we're returning a one-element tuple here
-        return (Individual_Grid(new_genome),)
+        return (Individual_Grid(self_copy),)
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
