@@ -101,18 +101,18 @@ class Individual_Grid(object):
                     # for the new genome to take other's gene (to prevent floating pipe pieces)
                     # if other's character is a pipe character at the current position, then just keep
                     # keep the original gene that it had at that position (choosing self genome)
-                    if other[y][x] not in pipe_characters:
-                        self_copy[y][x] = other[y][x]
+                    if other.genome[y][x] not in pipe_characters:
+                        self_copy[y][x] = other.genome[y][x]
                     else:
-                        self_copy[y][x] = self[y][x]
+                        self_copy[y][x] = self.genome[y][x]
                     # ensure that question mark blocks are not too low
-                    if other[y][x] in question_mark_block:
-                        if y < ground_level and other[y + 3][x] in walkable_blocks:
+                    if other.genome[y][x] in question_mark_block:
+                        if y < ground_level - 3 and other.genome[y + 3][x] in walkable_blocks:
                             self_copy[y][x] = other.genome[y][x]
                     else:
                         self_copy[y][x] = self.genome[y][x]
                     # spawn enemies on walkable blocks
-                    if other[y-1][x] in walkable_blocks and other[y][x] == "E":
+                    if other.genome[y-1][x] in walkable_blocks and other.genome[y][x] == "E":
                         self_copy[y][x] = other.genome[y][x]
                     else:
                         self_copy[y][x] = self.genome[y][x]
@@ -382,6 +382,14 @@ def generate_successors(population):
     # Hint: Call generate_children() on some individuals and fill up results.
     parents = tournament_selection(population)
     
+    while len(results) < len(population):
+        # randomly select two parents from the selected parents
+        parent1 = random.choice(parents)
+        parent2 = random.choice(parents)
+        
+        # generate children from the selected parents
+        children = parent1.generate_children(parent2)
+        results.extend(children)
 
     return results
 
@@ -409,7 +417,7 @@ def tournament_selection(population):
         largest_fitness_individual = random_individuals[largest_fitness_index]
         # to avoid repeats, check if this individual is already in the list of selected parents
         if largest_fitness_individual not in selected_parents:
-            selected_parents.append(population[largest_fitness_individual])
+            selected_parents.append(largest_fitness_individual)
     return selected_parents
 
 
