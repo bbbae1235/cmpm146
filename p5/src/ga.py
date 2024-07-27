@@ -106,8 +106,9 @@ class Individual_Grid(object):
                     else:
                         self_copy[y][x] = self[y][x]
                     # ensure that question mark blocks are not too low
-                    if y <= ground_level - 4 and other[y][x] in question_mark_block:
-                        self_copy[y][x] = other.genome[y][x]
+                    if other[y][x] in question_mark_block:
+                        if y < ground_level and other[y + 3][x] in walkable_blocks:
+                            self_copy[y][x] = other.genome[y][x]
                     else:
                         self_copy[y][x] = self.genome[y][x]
                     # spawn enemies on walkable blocks
