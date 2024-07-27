@@ -115,6 +115,8 @@ class Individual_Grid(object):
                         self_copy[y][x] = other.genome[y][x]
                     else:
                         self_copy[y][x] = self.genome[y][x]
+                else:
+                    self_copy[y][x] = self.genome[y][x]
 
         self_copy = self.mutate(self_copy)
         # do mutation; note we're returning a one-element tuple here
