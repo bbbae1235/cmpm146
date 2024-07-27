@@ -78,6 +78,8 @@ class Individual_Grid(object):
     # Create zero or more children from self and other
     def generate_children(self, other):
         new_genome = copy.deepcopy(self.genome)
+        # don't edit new_genome and create a copy of it?
+        self_copy = new_genome
         # Leaving first and last columns alone...
         # do crossover with other
         left = 1
@@ -86,7 +88,20 @@ class Individual_Grid(object):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                pass
+                # uniform crossover, randomly take a parent's gene at each position with some bias
+                
+                pipe_characters = ["T", "|"]
+                
+                # 20% chance of new genome to take other's gene
+                if random.randint(1, 10) <= 2:
+                    # if other's character at the current position is not a pipe character, then it's okay 
+                    # for the new genome to take other's gene (to prevent floating pipe pieces)
+                    # if other's character is a pipe character at the current position, then just keep
+                    # keep the original gene that it had at that position (choosing self genome)
+                    if other[y][x] not in pipe_characters:
+                        self_copy[y][x] = other[y][x]
+
+                
         # do mutation; note we're returning a one-element tuple here
         return (Individual_Grid(new_genome),)
 
