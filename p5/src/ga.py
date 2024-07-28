@@ -68,11 +68,26 @@ class Individual_Grid(object):
         # STUDENT also consider weighting the different tile types so it's not uniformly random
         # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
 
+        # In swap mutation, we select two positions on the chromosome at random, and interchange the values. 
+
         left = 1
         right = width - 1
+
+        floor_block = ["-", "X"]
+        question_mark_block = ["?", "M"]
+        walkable_blocks = ["X", "?", "M", "B"]
+        
         for y in range(height):
             for x in range(left, right):
-                pass
+                if random.randint(1, 10) <= 2:
+                    swap_y = random.randint(0, height-1)
+                    swap_x = random.randint(left, right-1)
+                    if genome[swap_y][swap_x] in floor_block:
+                        genome[y][x] = genome[swap_y][swap_x]
+                        genome[swap_y][swap_x] = genome[y][x]
+                    else:
+                        continue
+                        
         return genome
 
     # Create zero or more children from self and other
@@ -107,7 +122,7 @@ class Individual_Grid(object):
                         self_copy[y][x] = self.genome[y][x]
                     # ensure that question mark blocks are not too low
                     if other.genome[y][x] in question_mark_block:
-                        if y < ground_level - 3 and other.genome[y + 3][x] in walkable_blocks:
+                        if y < ground_level - 3 and y < 14 and self.genome[y + 3][x] in walkable_blocks:
                             self_copy[y][x] = other.genome[y][x]
                     else:
                         self_copy[y][x] = self.genome[y][x]
