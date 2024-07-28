@@ -108,6 +108,11 @@ class Individual_Grid(object):
                     if (x - 1) > left:
                         genome[y][x-1] = "X"
 
+                if y == 14 and random.random() < 0.01:
+                    for i in range(random.randint(1, 3)):
+                        genome[y - i][x] = "|"
+                    
+
                 # if y < 5 and genome[y][x] != "-":
                 #     genome[y][x] = "-"
 
