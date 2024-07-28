@@ -73,20 +73,14 @@ class Individual_Grid(object):
         left = 1
         right = width - 1
 
+
+        pipe_characters = ["T", "|"]
         floor_block = ["-", "X"]
         question_mark_block = ["?", "M"]
         walkable_blocks = ["X", "?", "M", "B"]
         
         for y in range(height):
             for x in range(left, right):
-                # if random.randint(1, 10) <= 2:
-                #     swap_y = random.randint(0, height-1)
-                #     swap_x = random.randint(left, right-1)
-                #     if genome[swap_y][swap_x] in floor_block:
-                #         genome[y][x] = genome[swap_y][swap_x]
-                #         genome[swap_y][swap_x] = genome[y][x]
-                #     else:
-                #         continue
                 if y == 15 and genome[y][x] == "-" and random.randint(1, 1000) <= 2:
                     genome[y][x] = "X"
 
@@ -96,26 +90,34 @@ class Individual_Grid(object):
                 if y < 14 and genome[y][x] == "E":
                     genome[y][x] = "-"
 
-                if y < 8 and genome[y][x] == "M":
+                if (y < 8 and genome[y][x] == "M") or (genome[y][x] in question_mark_block and random.random() < 0.1):
                     genome[y][x] = "o"
 
-                if (y < 8 or y == 14) and genome[y][x] == "?":
+                if (y < 8 or y == 14 or y == 13) and genome[y][x] in question_mark_block:
+                    genome[y][x] = "-"
+                elif (y > 8 ) and genome[y][x] in question_mark_block and random.random() < 0.1:
                     genome[y][x] = "-"
                 
-                if y >= 8 and genome[y][x] == "?":
-                    if (x + 1) < right - 1:
-                        genome[y][x+1] = "X"
+                
+                if y >= 8 and genome[y][x] in question_mark_block and random.random() < 0.1:
+                    if (x + 1) < right - 1 and genome[y][x + 1] not in pipe_characters:
+                        genome[y][x+1] = random.choice(walkable_blocks)
                     if (x - 1) > left:
-                        genome[y][x-1] = "X"
+                        genome[y][x-1] = random.choice(walkable_blocks)
 
                 if y == 14 and random.random() < 0.01:
-                    for i in range(random.randint(1, 3)):
-                        genome[y - i][x] = "|"
+                    top = 0
+                    if ((x + 8) < right and (x - 8) > left) and genome[y][x+8] != "|" and genome[y][x-8] != "|":
+                        for i in range(random.randint(1, 3)):
+                            genome[y - i][x] = "|"
+                            top = i
+                        genome[y - (i + 1)][x] = "T"
+                    else:
+                        continue
                     
-
-                # if y < 5 and genome[y][x] != "-":
-                #     genome[y][x] = "-"
-
+                # if genome[y][x] == "M" or genome[y][x] == "?":
+                #     if genome[y-1][x] != "-":
+                #         genome[y-1][x] = "-"
 
 
 
