@@ -90,7 +90,7 @@ class Individual_Grid(object):
                 if y < 14 and genome[y][x] == "E":
                     genome[y][x] = "-"
 
-                if (y < 8 and genome[y][x] == "M") or (genome[y][x] in question_mark_block and random.random() < 0.1):
+                if (y < 8 and genome[y][x] == "M"): #or (genome[y][x] in question_mark_block and random.random() < 0.1):
                     genome[y][x] = "o"
 
                 if (y < 8 or y == 14 or y == 13) and genome[y][x] in question_mark_block:
@@ -98,6 +98,11 @@ class Individual_Grid(object):
                 elif (y > 8 ) and genome[y][x] in question_mark_block and random.random() < 0.1:
                     genome[y][x] = "-"
                 
+                if genome[y][x] == "o":
+                    space = random.randint(1,3)
+                    if y + space < height:
+                        genome[y + space][x] = random.choice(walkable_blocks)
+                    else: continue
                 
                 if y >= 8 and genome[y][x] in question_mark_block and random.random() < 0.1:
                     if (x + 1) < right - 1 and genome[y][x + 1] not in pipe_characters:
