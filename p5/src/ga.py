@@ -79,15 +79,42 @@ class Individual_Grid(object):
         
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 10) <= 2:
-                    swap_y = random.randint(0, height-1)
-                    swap_x = random.randint(left, right-1)
-                    if genome[swap_y][swap_x] in floor_block:
-                        genome[y][x] = genome[swap_y][swap_x]
-                        genome[swap_y][swap_x] = genome[y][x]
-                    else:
-                        continue
-                        
+                # if random.randint(1, 10) <= 2:
+                #     swap_y = random.randint(0, height-1)
+                #     swap_x = random.randint(left, right-1)
+                #     if genome[swap_y][swap_x] in floor_block:
+                #         genome[y][x] = genome[swap_y][swap_x]
+                #         genome[swap_y][swap_x] = genome[y][x]
+                #     else:
+                #         continue
+                if y == 15 and genome[y][x] == "-" and random.randint(1, 1000) <= 2:
+                    genome[y][x] = "X"
+
+                if y == 14 and random.random() < 0.01 and genome[y][x] == "-":
+                    genome[y][x] = "E"
+
+                if y < 14 and genome[y][x] == "E":
+                    genome[y][x] = "-"
+
+                if y < 8 and genome[y][x] == "M":
+                    genome[y][x] = "o"
+
+                if (y < 8 or y == 14) and genome[y][x] == "?":
+                    genome[y][x] = "-"
+                
+                if y >= 8 and genome[y][x] == "?":
+                    if (x + 1) < right - 1:
+                        genome[y][x+1] = "X"
+                    if (x - 1) > left:
+                        genome[y][x-1] = "X"
+
+                # if y < 5 and genome[y][x] != "-":
+                #     genome[y][x] = "-"
+
+
+
+
+
         return genome
 
     # Create zero or more children from self and other
