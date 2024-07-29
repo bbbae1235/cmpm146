@@ -81,28 +81,40 @@ class Individual_Grid(object):
         
         for y in range(height):
             for x in range(left, right):
+                
                 if y == 15 and genome[y][x] == "-" and random.randint(1, 100) <= 2:
                     genome[y][x] = "X"
-
+                
+                # if at the level above the ground, randomly spawn enemies where there is space
                 if y == 14 and random.random() < 0.01 and genome[y][x] == "-":
                     genome[y][x] = "E"
 
+                # if above the ground level, remove enemies
                 if y < 14 and genome[y][x] == "E":
                     genome[y][x] = "-"
 
-                if (y < 8 and genome[y][x] == "M"): #or (genome[y][x] in question_mark_block and random.random() < 0.1):
-                    genome[y][x] = "o"
+                # # don't spawn question mark blocks too high
+                # if (y < 8 and genome[y][x] in question_mark_block):
+                #     genome[y][x] = "-"
 
+                # if don't spawn question mark blocks too high or too low
                 if (y < 8 or y == 14 or y == 13) and genome[y][x] in question_mark_block:
                     genome[y][x] = "-"
+                # remove question mark blocks randomly if it is low
                 elif (y > 8 ) and genome[y][x] in question_mark_block and random.random() < 0.1:
                     genome[y][x] = "-"
                 
+                # if there isnt a walkable block 2 spaces below a coin, remove the coin
                 if genome[y][x] == "o":
-                    space = random.randint(1,3)
-                    if y + space < height:
-                        genome[y + space][x] = random.choice(walkable_blocks)
-                    else: continue
+                    if y + 2 < height:
+                        if genome[y + 2][x] not in walkable_blocks:
+                            genome[y][x] = "-"
+
+                # randomly spawn coins 2 spaces above walkable blocks 
+                if genome[y][x] == "-" and random.random() < 0.01:
+                    if y + 2 < height:
+                        if genome[y + 2][x] in walkable_blocks:
+                            genome[y][x] = "o"
 
                 # top and bottom of question_mark_block is clear
                 if genome[y][x] in question_mark_block:
@@ -123,7 +135,7 @@ class Individual_Grid(object):
                         genome[y-1][x] = "E"
 
                 
-                if y >= 8 and genome[y][x] in question_mark_block and random.random() < 0.1:
+                if y >= 8 and genome[y][x] in question_mark_block and random.random() < 0.2:
                     if (x + 1) < right - 1 and genome[y][x + 1] not in pipe_characters:
                         genome[y][x+1] = random.choice(walkable_blocks)
                     if (x - 1) > left:
@@ -157,13 +169,16 @@ class Individual_Grid(object):
                             for j in range(size - i):
                                 if y - j < height:
                                     genome[y - j][flipped_x + i] = "X"
-
-                    
-                # if genome[y][x] == "M" or genome[y][x] == "?":
-                #     if genome[y-1][x] != "-":
-                #         genome[y-1][x] = "-"
-
-
+                
+                # flagpole staircase at end 
+                if x == right - 19:
+                    if y == 15:
+                        for i in range(9):
+                            if x + i < width:
+                                genome[y][x + i] = "X"
+                                for j in range(i + 1):
+                                    if y - j < height:
+                                        genome[y - j][x + i] = "X"
 
 
         return genome
