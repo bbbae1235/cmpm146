@@ -81,7 +81,7 @@ class Individual_Grid(object):
         
         for y in range(height):
             for x in range(left, right):
-                if y == 15 and genome[y][x] == "-" and random.randint(1, 1000) <= 2:
+                if y == 15 and genome[y][x] == "-" and random.randint(1, 100) <= 2:
                     genome[y][x] = "X"
 
                 if y == 14 and random.random() < 0.01 and genome[y][x] == "-":
@@ -103,6 +103,25 @@ class Individual_Grid(object):
                     if y + space < height:
                         genome[y + space][x] = random.choice(walkable_blocks)
                     else: continue
+
+                # top and bottom of question_mark_block is clear
+                if genome[y][x] in question_mark_block:
+                    if y-1 < height and y+1 < height:
+                        if genome[y-1][x] in walkable_blocks or genome[y+1][x] in walkable_blocks:
+                            genome[y][x] = "-"
+                
+                # spawn more walkable blocks under question_mark_blocks
+                if genome[y][x] in question_mark_block:
+                    space = random.randint(2,3)
+                    if y + space <= 12:
+                        genome[y + space][x] = random.choice(walkable_blocks)
+                    else: continue
+
+                # spawn enemies on walkable blocks above ground level
+                if genome[y][x] in walkable_blocks and random.random() < 0.2 and y < 14:
+                    if genome[y-1][x] == "-" and genome[y-2][x] == "-":
+                        genome[y-1][x] = "E"
+
                 
                 if y >= 8 and genome[y][x] in question_mark_block and random.random() < 0.1:
                     if (x + 1) < right - 1 and genome[y][x + 1] not in pipe_characters:
@@ -119,6 +138,26 @@ class Individual_Grid(object):
                         genome[y - (i + 1)][x] = "T"
                     else:
                         continue
+                
+                # build triangle structure with size 2 or 3
+                if y == 15 and random.random() < 0.01:
+                    size = random.randint(3,4)
+                    for i in range(size):
+                        if x + i < width:
+                            genome[y][x + i] = "X"
+                            for j in range(i + 1):
+                                if y - j < height:
+                                    genome[y - j][x + i] = "X"
+
+                    flipped_x = x + 7
+
+                    for i in range(size):
+                        if flipped_x + i < width:
+                            genome[y][flipped_x + i] = "X"
+                            for j in range(size - i):
+                                if y - j < height:
+                                    genome[y - j][flipped_x + i] = "X"
+
                     
                 # if genome[y][x] == "M" or genome[y][x] == "?":
                 #     if genome[y-1][x] != "-":
