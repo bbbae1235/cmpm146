@@ -100,6 +100,7 @@ class Individual_Grid(object):
                 # if don't spawn question mark blocks too high or too low
                 if (y < 8 or y == 14 or y == 13) and genome[y][x] in question_mark_block:
                     genome[y][x] = "-"
+                    
                 # remove question mark blocks randomly if it is low
                 elif (y > 8 ) and genome[y][x] in question_mark_block and random.random() < 0.1:
                     genome[y][x] = "-"
@@ -123,14 +124,14 @@ class Individual_Grid(object):
                             genome[y][x] = "-"
                 
                 # spawn more walkable blocks under question_mark_blocks
-                if genome[y][x] in question_mark_block:
-                    space = random.randint(2,3)
-                    if y + space <= 12:
-                        genome[y + space][x] = random.choice(walkable_blocks)
-                    else: continue
+                # if genome[y][x] in question_mark_block:
+                #     space = random.randint(2,3)
+                #     if y + space <= 12:
+                #         genome[y + space][x] = random.choice(walkable_blocks)
+                #     else: continue
 
                 # spawn enemies on walkable blocks above ground level
-                if genome[y][x] in walkable_blocks and random.random() < 0.2 and y < 14:
+                if genome[y][x] in walkable_blocks and random.random() < 0.1 and y < 14:
                     if genome[y-1][x] == "-" and genome[y-2][x] == "-":
                         genome[y-1][x] = "E"
 
@@ -143,7 +144,14 @@ class Individual_Grid(object):
 
                 if y == 14 and random.random() < 0.01:
                     top = 0
+                    nearby_wall = False
                     if ((x + 8) < right and (x - 8) > left) and genome[y][x+8] != "|" and genome[y][x-8] != "|":
+                        for i in range (4):
+                            if (x - i > left and x + i < right) and (genome[y][x - i] == "X" and genome[y][x + i] == "X"):
+                                nearby_wall = True
+                                break
+                        if nearby_wall == True:
+                            break
                         for i in range(random.randint(1, 3)):
                             genome[y - i][x] = "|"
                             top = i
@@ -152,7 +160,7 @@ class Individual_Grid(object):
                         continue
                 
                 # build triangle structure with size 2 or 3
-                if y == 15 and random.random() < 0.01:
+                if y == 15 and random.random() < 0.008:
                     size = random.randint(3,4)
                     for i in range(size):
                         if x + i < width:
@@ -169,8 +177,23 @@ class Individual_Grid(object):
                             for j in range(size - i):
                                 if y - j < height:
                                     genome[y - j][flipped_x + i] = "X"
+
+                    gap_right = x + size
+                    gap_left = x + 7 - size 
+                    gap_space = 0
+                    if size == 3:
+                        gap_space = 3
+                    else:
+                        gap_space = 4
+                    if gap_right < right and (gap_left + 3) < right:
+                        for i in range (gap_right, gap_left + gap_space):
+                            genome[y][i] = "-"
+                        for i in range (gap_right, gap_left + gap_space):
+                            if genome[y - 1][i] == "E":
+                                genome[y - 1][i] = "-"
+
                 
-                # flagpole staircase at end 
+                # flagpole staircase
                 if x == right - 19:
                     if y == 15:
                         for i in range(9):
