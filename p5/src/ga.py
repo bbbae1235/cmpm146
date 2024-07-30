@@ -82,9 +82,6 @@ class Individual_Grid(object):
         for y in range(height):
             for x in range(left, right):
                 
-                if y == 15 and genome[y][x] == "-" and random.randint(1, 100) <= 2:
-                    genome[y][x] = "X"
-                
                 # if at the level above the ground, randomly spawn enemies where there is space
                 if y == 14 and random.random() < 0.01 and genome[y][x] == "-":
                     genome[y][x] = "E"
@@ -92,10 +89,6 @@ class Individual_Grid(object):
                 # if above the ground level, remove enemies
                 if y < 14 and genome[y][x] == "E":
                     genome[y][x] = "-"
-
-                # # don't spawn question mark blocks too high
-                # if (y < 8 and genome[y][x] in question_mark_block):
-                #     genome[y][x] = "-"
 
                 # if don't spawn question mark blocks too high or too low
                 if (y < 8 or y == 14 or y == 13) and genome[y][x] in question_mark_block:
@@ -122,13 +115,6 @@ class Individual_Grid(object):
                     if y-1 < height and y+1 < height:
                         if genome[y-1][x] in walkable_blocks or genome[y+1][x] in walkable_blocks:
                             genome[y][x] = "-"
-                
-                # spawn more walkable blocks under question_mark_blocks
-                # if genome[y][x] in question_mark_block:
-                #     space = random.randint(2,3)
-                #     if y + space <= 12:
-                #         genome[y + space][x] = random.choice(walkable_blocks)
-                #     else: continue
 
                 # spawn enemies on walkable blocks above ground level
                 if genome[y][x] in walkable_blocks and random.random() < 0.1 and y < 14:
@@ -143,7 +129,6 @@ class Individual_Grid(object):
                         genome[y][x-1] = random.choice(walkable_blocks)
 
                 if y == 14 and random.random() < 0.01:
-                    top = 0
                     nearby_wall = False
                     if ((x + 8) < right and (x - 8) > left) and genome[y][x+8] != "|" and genome[y][x-8] != "|":
                         for i in range (4):
@@ -154,7 +139,6 @@ class Individual_Grid(object):
                             break
                         for i in range(random.randint(1, 3)):
                             genome[y - i][x] = "|"
-                            top = i
                         genome[y - (i + 1)][x] = "T"
                     else:
                         continue
@@ -323,15 +307,21 @@ class Individual_DE(object):
         # STUDENT Improve this with any code you like
         coefficients = dict(
             meaningfulJumpVariance=0.5,
-            negativeSpace=0.6,
+            negativeSpace=0.7,
             pathPercentage=0.5,
             emptyPercentage=0.6,
             linearity=-0.5,
-            solvability=2.0
+            solvability=3.0
         )
         penalties = 0
         # STUDENT For example, too many stairs are unaesthetic.  Let's penalize that
         if len(list(filter(lambda de: de[1] == "6_stairs", self.genome))) > 5:
+            penalties -= 2
+        # add more platforms because theyre fun to jump onto
+        if len(list(filter(lambda de: de[1] == "1_platform", self.genome))) > 6:
+            penalties += 2
+        # don't have too many enemies because it would be too hard
+        if len(list(filter(lambda de: de[1] == "2_enemy", self.genome))) > 8:
             penalties -= 2
         # STUDENT If you go for the FI-2POP extra credit, you can put constraint calculation in here too and cache it in a new entry in __slots__.
         self._fitness = sum(map(lambda m: coefficients[m] * measurements[m],
@@ -551,6 +541,15 @@ def tournament_selection(population):
             selected_parents.append(largest_fitness_individual)
     return selected_parents
 
+def random_selection(population):
+    selected_parents = []
+    selected = 0
+    random_number = random.randint(2, len(population))
+    for i in range(random_number):
+        selected = population[random.randint(0, len(population))]
+        if selected not in selected_parents:
+            selected_parents.append(selected)
+    return selected_parents
 
 def ga():
     # STUDENT Feel free to play with this parameter
