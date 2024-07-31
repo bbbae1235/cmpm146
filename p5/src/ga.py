@@ -343,6 +343,10 @@ class Individual_DE(object):
             x = de[0]
             de_type = de[1]
             choice = random.random()
+
+            if x == 0 or x == width - 1:
+                return new_genome
+        
             if de_type == "4_block":
                 y = de[2]
                 breakable = de[3]
@@ -408,7 +412,8 @@ class Individual_DE(object):
                     madeof = random.choice(["?", "X", "B"])
                 new_de = (x, de_type, w, y, madeof)
             elif de_type == "2_enemy":
-                pass
+                x = offset_by_upto(x, width / 8, min=1, max=width - 2)
+                new_de = (x, de_type)
             new_genome.pop(to_change)
             heapq.heappush(new_genome, new_de)
         return new_genome
