@@ -14,7 +14,7 @@ class BasicModel(Model):
         # convolution layer
         self.model.add(layers.Conv2D(16, (3, 3), activation='relu'))
         self.model.add(layers.MaxPooling2D((4, 4)))
-        self.model.add(layers.Conv2D(24, (3, 3), activation='relu'))
+        self.model.add(layers.Conv2D(26, (3, 3), activation='relu'))
         self.model.add(layers.MaxPooling2D((4, 4)))
         # flatten layer
         self.model.add(layers.Flatten())
@@ -30,4 +30,3 @@ class BasicModel(Model):
             loss='categorical_crossentropy',
             metrics=['accuracy'],
         )
-        
