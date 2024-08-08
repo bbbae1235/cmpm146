@@ -94,21 +94,16 @@ class UserWebcamPlayer:
             raise e
     
     def _get_emotion(self, img) -> int:
-        # Your code goes here
-        #
-        # img an np array of size NxN (square), each pixel is a value between 0 to 255
-        # you have to resize this to image_size before sending to your model
-        # to show the image here, you can use:
-        # import matplotlib.pyplot as plt
-        # plt.imshow(img, cmap='gray', vmin=0, vmax=255)
-        # plt.show()
-        #
-        # You have to use your saved model, use resized img as input, and get one classification value out of it
-        # The classification value should be 0, 1, or 2 for neutral, happy or surprise respectively
-
-        # return an integer (0, 1 or 2), otherwise the code will throw an error
-        return 1
-        pass
+        # image resize
+        img_resized = cv2.resize(img, (image_size, image_size)) / 255.0
+        # add dimension
+        img_input = np.expand_dims(img_resized, axis=0)
+        # use the model to predict the emotion
+        prediction = self.model.predict(img_input)
+        # get index of the class with the highest predicted probability
+        emotion = np.argmax(prediction, axis=1)[0]
+        
+        return int(emotion)
     
     def get_move(self, board_state):
         row, col = None, None
