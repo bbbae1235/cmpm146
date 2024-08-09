@@ -94,12 +94,18 @@ class UserWebcamPlayer:
             raise e
     
     def _get_emotion(self, img) -> int:
-        # image resize
+        model = models.load_model('/Users/brian/cmpm146/p6/src/results/basic_model_20_epochs_timestamp_1723173337.keras')
+
+        image_size = 150  # or whatever size your model expects
         img_resized = cv2.resize(img, (image_size, image_size)) / 255.0
-        # add dimension
+
+        # If your images are grayscale, convert them to 3-channel images
+        if len(img_resized.shape) == 2:  # Check if the image is grayscale
+            img_resized = np.stack([img_resized]*3, axis=-1)
+
         img_input = np.expand_dims(img_resized, axis=0)
         # use the model to predict the emotion
-        prediction = self.model.predict(img_input)
+        prediction = model.predict(img_input)
         # get index of the class with the highest predicted probability
         emotion = np.argmax(prediction, axis=1)[0]
         
